@@ -21,6 +21,11 @@ export interface EnvVar {
 
 export interface AwsLoadBalancerControllerOptions {
   /**
+   * Extra labels to associate with resources.
+   * @default - none
+   */
+  readonly labels?: { [name: string]: string };
+  /**
    * Default Namespace for aws-load-balancer-controller.
    * @default - kube-system
    */
@@ -31,10 +36,16 @@ export interface AwsLoadBalancerControllerOptions {
    */
   readonly clusterName: string ;
   /**
-   * Default Service Account Name for aws-load-balancer-controller.
+   * service account for aws-load-balancer-controller.
+   *
+   * @default - true
+   */
+  readonly createServiceAccount?: boolean;
+  /**
+   * Service Account Name for aws-load-balancer-controller.
    * @default - aws-load-balancer-controller
    */
-  readonly serviceAccountName?: string;
+  readonly serviceAccountName: string;
   /**
    * Default image for aws-load-balancer-controller.
    * @default - docker.io/amazon/aws-aws-load-balancer-controller:v1.1.9
@@ -62,6 +73,12 @@ export interface AwsLoadBalancerControllerOptions {
 */
 export class AwsLoadBalancerController extends Construct {
   /**
+   * service account for aws-load-balancer-controller.
+   *
+   * @default - true
+   */
+  public readonly createServiceAccount?: boolean;
+  /**
    * Service Account Name for aws-load-balancer-controller.
    */
   public readonly serviceAccountName: string;
@@ -80,10 +97,11 @@ export class AwsLoadBalancerController extends Construct {
   public readonly namespace: string ;
   constructor(scope: Construct, id: string, options: AwsLoadBalancerControllerOptions) {
     super(scope, id);
-    this.serviceAccountName = options.serviceAccountName ?? 'aws-load-balancer-controller';
+    this.serviceAccountName = options?.serviceAccountName ?? 'aws-load-balancer-controller';
     this.deploymentName = 'aws-load-balancer-controller';
     this.clusterName = options.clusterName;
     this.namespace = options?.namespace ?? 'kube-system';
+    this.createServiceAccount = options?.createServiceAccount ?? true;
 
     new cdk8s.ApiObject(this, 'aws-load-balancer-controller-crd', {
       apiVersion: 'apiextensions.k8s.io/v1beta1',
@@ -397,18 +415,19 @@ export class AwsLoadBalancerController extends Construct {
         },
       ],
     });
-
-    new k8s.KubeServiceAccount(this, 'aws-load-balancer-controller-sa', {
-      metadata: {
-        labels: {
-          'app.kubernetes.io/component': 'controller',
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
+    if (options.createServiceAccount === true) {
+      new k8s.KubeServiceAccount(this, 'aws-load-balancer-controller-sa', {
+        metadata: {
+          labels: {
+            'app.kubernetes.io/component': 'controller',
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: this.serviceAccountName,
+          namespace: this.namespace,
         },
-        name: this.serviceAccountName,
-        namespace: this.namespace,
-      },
-    });
+      });
+    }
 
     new k8s.KubeRole(this, 'aws-load-balancer-controller-leader-election-role', {
       metadata: {
