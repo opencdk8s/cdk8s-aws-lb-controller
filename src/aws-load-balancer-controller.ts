@@ -21,11 +21,6 @@ export interface EnvVar {
 
 export interface AwsLoadBalancerControllerOptions {
   /**
-   * Extra labels to associate with resources.
-   * @default - none
-   */
-  readonly labels?: { [name: string]: string };
-  /**
    * Default Namespace for aws-load-balancer-controller.
    * @default - kube-system
    */

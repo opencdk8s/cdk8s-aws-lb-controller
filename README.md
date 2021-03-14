@@ -5,7 +5,7 @@
 ![npm](https://img.shields.io/npm/dt/@opencdk8s/cdk8s-aws-lb-controller?label=npm&color=green) 
 ![PyPi](https://img.shields.io/pypi/dm/cdk8s-aws-lb-controller?label=pypi&color=green) 
 
-Synths an install manifest for [aws-load-balancer-controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller), based off of [this repo](https://github.com/opencdk8s/cdk8s-aws-load-balancer-controller)
+Synths an install manifest for [aws-load-balancer-controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller), based off of [this repo](https://github.com/guan840912/cdk8s-aws-load-balancer-controller)
 
 ## Controller version : `v2.1.3`
 
