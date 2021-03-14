@@ -47,13 +47,14 @@ new AwsLoadBalancerController(scope: Construct, id: string, options: AwsLoadBala
 * **id** (<code>string</code>)  *No description*
 * **options** (<code>[AwsLoadBalancerControllerOptions](#opencdk8s-cdk8s-aws-lb-controller-awsloadbalancercontrolleroptions)</code>)  *No description*
   * **clusterName** (<code>string</code>)  Kubernetes Cluster Name for aws-load-balancer-controller. 
+  * **serviceAccountName** (<code>string</code>)  Service Account Name for aws-load-balancer-controller. 
   * **args** (<code>Array<string></code>)  Another Args for aws-load-balancer-controller. __*Default*__: None
+  * **createServiceAccount** (<code>boolean</code>)  service account for aws-load-balancer-controller. __*Default*__: true
   * **env** (<code>Array<[EnvVar](#opencdk8s-cdk8s-aws-lb-controller-envvar)></code>)  Another Args for aws-load-balancer-controller. __*Default*__: None
   * **image** (<code>string</code>)  Default image for aws-load-balancer-controller. __*Default*__: docker.io/amazon/aws-aws-load-balancer-controller:v1.1.9
   * **labels** (<code>Map<string, string></code>)  Extra labels to associate with resources. __*Default*__: none
   * **namespace** (<code>string</code>)  Default Namespace for aws-load-balancer-controller. __*Default*__: kube-system
   * **replicas** (<code>number</code>)  Replicas for aws-load-balancer-controller. __*Default*__: 1
-  * **serviceAccountName** (<code>string</code>)  Default Service Account Name for aws-load-balancer-controller. __*Default*__: aws-load-balancer-controller
 
 
 
@@ -66,6 +67,7 @@ Name | Type | Description
 **deploymentName**🔹 | <code>string</code> | Kubernetes Deployment Name for aws-load-balancer-controller.
 **namespace**🔹 | <code>string</code> | Namespace for aws-load-balancer-controller.
 **serviceAccountName**🔹 | <code>string</code> | Service Account Name for aws-load-balancer-controller.
+**createServiceAccount**?🔹 | <code>boolean</code> | service account for aws-load-balancer-controller.<br/>__*Default*__: true
 
 
 
@@ -147,13 +149,14 @@ __Returns__:
 Name | Type | Description 
 -----|------|-------------
 **clusterName**🔹 | <code>string</code> | Kubernetes Cluster Name for aws-load-balancer-controller.
+**serviceAccountName**🔹 | <code>string</code> | Service Account Name for aws-load-balancer-controller.
 **args**?🔹 | <code>Array<string></code> | Another Args for aws-load-balancer-controller.<br/>__*Default*__: None
+**createServiceAccount**?🔹 | <code>boolean</code> | service account for aws-load-balancer-controller.<br/>__*Default*__: true
 **env**?🔹 | <code>Array<[EnvVar](#opencdk8s-cdk8s-aws-lb-controller-envvar)></code> | Another Args for aws-load-balancer-controller.<br/>__*Default*__: None
 **image**?🔹 | <code>string</code> | Default image for aws-load-balancer-controller.<br/>__*Default*__: docker.io/amazon/aws-aws-load-balancer-controller:v1.1.9
 **labels**?🔹 | <code>Map<string, string></code> | Extra labels to associate with resources.<br/>__*Default*__: none
 **namespace**?🔹 | <code>string</code> | Default Namespace for aws-load-balancer-controller.<br/>__*Default*__: kube-system
 **replicas**?🔹 | <code>number</code> | Replicas for aws-load-balancer-controller.<br/>__*Default*__: 1
-**serviceAccountName**?🔹 | <code>string</code> | Default Service Account Name for aws-load-balancer-controller.<br/>__*Default*__: aws-load-balancer-controller
 
 
 
