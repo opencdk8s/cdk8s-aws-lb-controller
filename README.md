@@ -1,4 +1,9 @@
 # cdk8s-aws-lb-controller
+![Release](https://github.com/opencdk8s/cdk8s-aws-lb-controller/workflows/Release/badge.svg?branch=development)
+[![npm version](https://badge.fury.io/js/%40opencdk8s%2Fcdk8s-aws-lb-controller.svg)](https://badge.fury.io/js/%40opencdk8s%2Fcdk8s-aws-lb-controller)
+[![PyPI version](https://badge.fury.io/py/cdk8s-aws-lb-controller.svg)](https://badge.fury.io/py/cdk8s-aws-lb-controller)
+![npm](https://img.shields.io/npm/dt/@opencdk8s/cdk8s-aws-lb-controller?label=npm&color=green) 
+![PyPi](https://img.shields.io/pypi/dm/cdk8s-aws-lb-controller?label=pypi&color=green) 
 
 Synths an install manifest for [aws-load-balancer-controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller), based off of [this repo](https://github.com/opencdk8s/cdk8s-aws-load-balancer-controller)
 
