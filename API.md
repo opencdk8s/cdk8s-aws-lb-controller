@@ -6,7 +6,6 @@ Name|Description
 ----|-----------
 [AwsLoadBalancerController](#opencdk8s-cdk8s-aws-lb-controller-awsloadbalancercontroller)|Generate aws-load-balancer-controller config yaml.
 [AwsLoadBalancerPolicy](#opencdk8s-cdk8s-aws-lb-controller-awsloadbalancerpolicy)|awsLoadBalancerPolicy class ,help you add policy to your Iam Role for service account.
-[CertManager](#opencdk8s-cdk8s-aws-lb-controller-certmanager)|*No description*
 
 
 **Structs**
@@ -100,39 +99,6 @@ static addPolicy(version: string, role: any): any
 
 * **version** (<code>string</code>)  *No description*
 * **role** (<code>any</code>)  *No description*
-
-__Returns__:
-* <code>any</code>
-
-
-
-## class CertManager 🔹 <a id="opencdk8s-cdk8s-aws-lb-controller-certmanager"></a>
-
-
-
-
-### Initializer
-
-
-
-
-```ts
-new CertManager()
-```
-
-
-
-### Methods
-
-
-#### *static* certManagerConfig()🔹 <a id="opencdk8s-cdk8s-aws-lb-controller-certmanager-certmanagerconfig"></a>
-
-
-
-```ts
-static certManagerConfig(): any
-```
-
 
 __Returns__:
 * <code>any</code>

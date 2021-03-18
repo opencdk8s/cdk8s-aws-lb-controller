@@ -103,6 +103,10 @@ export class AwsLoadBalancerController extends Construct {
     this.namespace = options?.namespace ?? 'kube-system';
     this.createServiceAccount = options?.createServiceAccount ?? true;
 
+    new cdk8s.Include(this, 'certificate-manager', {
+      url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
+    });
+
     new cdk8s.ApiObject(this, 'aws-load-balancer-controller-crd', {
       apiVersion: 'apiextensions.k8s.io/v1beta1',
       kind: 'CustomResourceDefinition',
