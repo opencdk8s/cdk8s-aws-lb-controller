@@ -21,6 +21,11 @@ export interface EnvVar {
 
 export interface AwsLoadBalancerControllerOptions {
   /**
+   * Install cert-manager
+   * @default - true
+   */
+  readonly certManager?: boolean;
+  /**
    * Extra labels to associate with resources.
    * @default - none
    */
@@ -73,6 +78,12 @@ export interface AwsLoadBalancerControllerOptions {
 */
 export class AwsLoadBalancerController extends Construct {
   /**
+   * Install cert manager
+   *
+   * @default - true
+   */
+  public readonly certManager?: boolean;
+  /**
    * service account for aws-load-balancer-controller.
    *
    * @default - true
@@ -102,10 +113,13 @@ export class AwsLoadBalancerController extends Construct {
     this.clusterName = options.clusterName;
     this.namespace = options?.namespace ?? 'kube-system';
     this.createServiceAccount = options?.createServiceAccount ?? true;
+    this.certManager = options?.certManager ?? true;
 
-    new cdk8s.Include(this, 'certificate-manager', {
-      url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
-    });
+    if (this.certManager === true) {
+      new cdk8s.Include(this, 'certificate-manager', {
+        url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
+      });
+    }
 
     new cdk8s.ApiObject(this, 'aws-load-balancer-controller-crd', {
       apiVersion: 'apiextensions.k8s.io/v1beta1',
@@ -706,82 +720,84 @@ export class AwsLoadBalancerController extends Construct {
       },
     });
 
-    new cdk8s.ApiObject(this, 'aws-load-balancer-serving-cert', {
-      apiVersion: 'cert-manager.io/v1alpha2',
-      kind: 'Certificate',
-      metadata: {
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-serving-cert',
-        namespace: this.namespace,
-      },
-      spec: {
-        dnsNames: [
-          'aws-load-balancer-webhook-service.kube-system.svc',
-          'aws-load-balancer-webhook-service.kube-system.svc.cluster.local',
-        ],
-        issuerRef: {
-          kind: 'Issuer',
-          name: 'aws-load-balancer-selfsigned-issuer',
-        },
-        secretName: 'aws-load-balancer-webhook-tls',
-      },
-    });
-
-    new cdk8s.ApiObject(this, 'aws-load-balancer-selfsigned-issuer', {
-      apiVersion: 'cert-manager.io/v1alpha2',
-      kind: 'Issuer',
-      metadata: {
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-selfsigned-issuer',
-        namespace: this.namespace,
-      },
-      spec: {
-        selfSigned: {},
-      },
-    });
-
-    new k8s.KubeValidatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-selfsigned-issuer-valid', {
-      metadata: {
-        annotations: {
-          'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
-        },
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-webhook',
-      },
-      webhooks: [
-        {
-          clientConfig: {
-            caBundle: 'Cg==',
-            service: {
-              name: 'aws-load-balancer-webhook-service',
-              namespace: this.namespace,
-              path: '/validate-elbv2-k8s-aws-v1beta1-targetgroupbinding',
-            },
+    if (this.certManager === true) {
+      new cdk8s.ApiObject(this, 'aws-load-balancer-serving-cert', {
+        apiVersion: 'cert-manager.io/v1alpha2',
+        kind: 'Certificate',
+        metadata: {
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
           },
-          failurePolicy: 'Fail',
-          name: 'vtargetgroupbinding.elbv2.k8s.aws',
-          rules: [{
-            apiGroups: ['elbv2.k8s.aws'],
-            apiVersions: ['v1beta1'],
-            operations: [
-              'CREATE',
-              'UPDATE',
-            ],
-            resources: ['targetgroupbindings'],
-          }],
-          sideEffects: 'None',
+          name: 'aws-load-balancer-serving-cert',
+          namespace: this.namespace,
         },
-      ],
-    });
+        spec: {
+          dnsNames: [
+            'aws-load-balancer-webhook-service.kube-system.svc',
+            'aws-load-balancer-webhook-service.kube-system.svc.cluster.local',
+          ],
+          issuerRef: {
+            kind: 'Issuer',
+            name: 'aws-load-balancer-selfsigned-issuer',
+          },
+          secretName: 'aws-load-balancer-webhook-tls',
+        },
+      });
+
+      new cdk8s.ApiObject(this, 'aws-load-balancer-selfsigned-issuer', {
+        apiVersion: 'cert-manager.io/v1alpha2',
+        kind: 'Issuer',
+        metadata: {
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: 'aws-load-balancer-selfsigned-issuer',
+          namespace: this.namespace,
+        },
+        spec: {
+          selfSigned: {},
+        },
+      });
+
+      new k8s.KubeValidatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-selfsigned-issuer-valid', {
+        metadata: {
+          annotations: {
+            'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
+          },
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: 'aws-load-balancer-webhook',
+        },
+        webhooks: [
+          {
+            clientConfig: {
+              caBundle: 'Cg==',
+              service: {
+                name: 'aws-load-balancer-webhook-service',
+                namespace: this.namespace,
+                path: '/validate-elbv2-k8s-aws-v1beta1-targetgroupbinding',
+              },
+            },
+            failurePolicy: 'Fail',
+            name: 'vtargetgroupbinding.elbv2.k8s.aws',
+            rules: [{
+              apiGroups: ['elbv2.k8s.aws'],
+              apiVersions: ['v1beta1'],
+              operations: [
+                'CREATE',
+                'UPDATE',
+              ],
+              resources: ['targetgroupbindings'],
+            }],
+            sideEffects: 'None',
+          },
+        ],
+      });
+    }
 
   }
   private argsFunc(args?: string[]):string[] {
