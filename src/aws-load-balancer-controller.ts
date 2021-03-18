@@ -21,6 +21,11 @@ export interface EnvVar {
 
 export interface AwsLoadBalancerControllerOptions {
   /**
+   * Install cert-manager
+   * @default - true
+   */
+  readonly certManager?: boolean;
+  /**
    * Extra labels to associate with resources.
    * @default - none
    */
@@ -73,6 +78,12 @@ export interface AwsLoadBalancerControllerOptions {
 */
 export class AwsLoadBalancerController extends Construct {
   /**
+   * Install cert manager
+   *
+   * @default - true
+   */
+  public readonly certManager?: boolean;
+  /**
    * service account for aws-load-balancer-controller.
    *
    * @default - true
@@ -102,10 +113,13 @@ export class AwsLoadBalancerController extends Construct {
     this.clusterName = options.clusterName;
     this.namespace = options?.namespace ?? 'kube-system';
     this.createServiceAccount = options?.createServiceAccount ?? true;
+    this.certManager = options?.certManager ?? true;
 
-    new cdk8s.Include(this, 'certificate-manager', {
-      url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
-    });
+    if (this.certManager === true) {
+      new cdk8s.Include(this, 'certificate-manager', {
+        url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
+      });
+    }
 
     new cdk8s.ApiObject(this, 'aws-load-balancer-controller-crd', {
       apiVersion: 'apiextensions.k8s.io/v1beta1',

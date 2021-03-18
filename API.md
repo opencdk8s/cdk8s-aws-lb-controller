@@ -48,6 +48,7 @@ new AwsLoadBalancerController(scope: Construct, id: string, options: AwsLoadBala
   * **clusterName** (<code>string</code>)  Kubernetes Cluster Name for aws-load-balancer-controller. 
   * **serviceAccountName** (<code>string</code>)  Service Account Name for aws-load-balancer-controller. 
   * **args** (<code>Array<string></code>)  Another Args for aws-load-balancer-controller. __*Default*__: None
+  * **certManager** (<code>boolean</code>)  Install cert-manager. __*Default*__: true
   * **createServiceAccount** (<code>boolean</code>)  service account for aws-load-balancer-controller. __*Default*__: true
   * **env** (<code>Array<[EnvVar](#opencdk8s-cdk8s-aws-lb-controller-envvar)></code>)  Another Args for aws-load-balancer-controller. __*Default*__: None
   * **image** (<code>string</code>)  Default image for aws-load-balancer-controller. __*Default*__: docker.io/amazon/aws-aws-load-balancer-controller:v1.1.9
@@ -66,6 +67,7 @@ Name | Type | Description
 **deploymentName**🔹 | <code>string</code> | Kubernetes Deployment Name for aws-load-balancer-controller.
 **namespace**🔹 | <code>string</code> | Namespace for aws-load-balancer-controller.
 **serviceAccountName**🔹 | <code>string</code> | Service Account Name for aws-load-balancer-controller.
+**certManager**?🔹 | <code>boolean</code> | Install cert manager.<br/>__*Default*__: true
 **createServiceAccount**?🔹 | <code>boolean</code> | service account for aws-load-balancer-controller.<br/>__*Default*__: true
 
 
@@ -117,6 +119,7 @@ Name | Type | Description
 **clusterName**🔹 | <code>string</code> | Kubernetes Cluster Name for aws-load-balancer-controller.
 **serviceAccountName**🔹 | <code>string</code> | Service Account Name for aws-load-balancer-controller.
 **args**?🔹 | <code>Array<string></code> | Another Args for aws-load-balancer-controller.<br/>__*Default*__: None
+**certManager**?🔹 | <code>boolean</code> | Install cert-manager.<br/>__*Default*__: true
 **createServiceAccount**?🔹 | <code>boolean</code> | service account for aws-load-balancer-controller.<br/>__*Default*__: true
 **env**?🔹 | <code>Array<[EnvVar](#opencdk8s-cdk8s-aws-lb-controller-envvar)></code> | Another Args for aws-load-balancer-controller.<br/>__*Default*__: None
 **image**?🔹 | <code>string</code> | Default image for aws-load-balancer-controller.<br/>__*Default*__: docker.io/amazon/aws-aws-load-balancer-controller:v1.1.9
