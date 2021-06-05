@@ -119,6 +119,317 @@ export class AwsLoadBalancerController extends Construct {
       new cdk8s.Include(this, 'certificate-manager', {
         url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
       });
+
+      new k8s.KubeMutatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-webhook', {
+        metadata: {
+          annotations: {
+            'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
+          },
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: 'aws-load-balancer-webhook',
+        },
+        webhooks: [
+          {
+            clientConfig: {
+              caBundle: 'Cg==',
+              service: {
+                name: 'aws-load-balancer-webhook-service',
+                namespace: this.namespace,
+                path: '/mutate-v1-pod',
+              },
+            },
+            failurePolicy: 'Fail',
+            name: 'mpod.elbv2.k8s.aws',
+            namespaceSelector: {
+              matchExpressions: [
+                {
+                  key: 'elbv2.k8s.aws/pod-readiness-gate-inject',
+                  operator: 'In',
+                  values: ['enabled'],
+                },
+              ],
+            },
+            rules: [{
+              apiGroups: [''],
+              apiVersions: ['v1'],
+              operations: [
+                'CREATE',
+              ],
+              resources: ['pods'],
+            }],
+            sideEffects: 'None',
+          },
+          {
+            clientConfig: {
+              caBundle: 'Cg==',
+              service: {
+                name: 'aws-load-balancer-webhook-service',
+                namespace: this.namespace,
+                path: '/mutate-elbv2-k8s-aws-v1beta1-targetgroupbinding',
+              },
+            },
+            failurePolicy: 'Fail',
+            name: 'mtargetgroupbinding.elbv2.k8s.aws',
+            rules: [{
+              apiGroups: ['elbv2.k8s.aws'],
+              apiVersions: ['v1beta1'],
+              operations: [
+                'CREATE',
+                'UPDATE',
+              ],
+              resources: ['targetgroupbindings'],
+            }],
+            sideEffects: 'None',
+          },
+        ],
+      });
+
+      new k8s.KubeDeployment(this, 'aws-load-balancer-controller-deployment', {
+        metadata: {
+          labels: {
+            'app.kubernetes.io/component': 'controller',
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          namespace: this.namespace,
+          name: this.deploymentName,
+        },
+        spec: {
+          replicas: options?.replicas ?? 1,
+          selector: {
+            matchLabels: {
+              'app.kubernetes.io/component': 'controller',
+              'app.kubernetes.io/name': this.serviceAccountName,
+              ...options.labels,
+            },
+          },
+          template: {
+            metadata: {
+              labels: {
+                'app.kubernetes.io/component': 'controller',
+                'app.kubernetes.io/name': this.serviceAccountName,
+                ...options.labels,
+              },
+            },
+            spec: {
+              containers: [{
+                name: 'controller',
+                image: options?.image ?? 'amazon/aws-alb-ingress-controller:v2.1.3',
+                args: this.argsFunc(options.args),
+                env: this.envFunc(options.env),
+                livenessProbe: {
+                  failureThreshold: 2,
+                  httpGet: {
+                    path: '/healthz',
+                    port: 61779,
+                    scheme: 'HTTP',
+                  },
+                  initialDelaySeconds: 30,
+                  timeoutSeconds: 10,
+                },
+                ports: [
+                  {
+                    containerPort: 9443,
+                    name: 'webhook-server',
+                    protocol: 'TCP',
+                  },
+                ],
+                resources: {
+                  limits: {
+                    cpu: '200m',
+                    memory: '500Mi',
+                  },
+                  requests: {
+                    cpu: '100m',
+                    memory: '200Mi',
+                  },
+                },
+                securityContext: {
+                  allowPrivilegeEscalation: false,
+                  readOnlyRootFilesystem: true,
+                  runAsNonRoot: true,
+                },
+                volumeMounts: [
+                  {
+                    mountPath: '/tmp/k8s-webhook-server/serving-certs',
+                    name: 'cert',
+                    readOnly: true,
+                  },
+                ],
+              }],
+              securityContext: {
+                fsGroup: 1337,
+              },
+              serviceAccountName: `${this.serviceAccountName}`,
+              terminationGracePeriodSeconds: 10,
+              volumes: [{
+                name: 'cert',
+                secret: {
+                  defaultMode: 420,
+                  secretName: 'aws-load-balancer-webhook-tls',
+                },
+              }],
+            },
+          },
+        },
+      });
+
+      new cdk8s.ApiObject(this, 'aws-load-balancer-serving-cert', {
+        apiVersion: 'cert-manager.io/v1alpha2',
+        kind: 'Certificate',
+        metadata: {
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: 'aws-load-balancer-serving-cert',
+          namespace: this.namespace,
+        },
+        spec: {
+          dnsNames: [
+            'aws-load-balancer-webhook-service.kube-system.svc',
+            'aws-load-balancer-webhook-service.kube-system.svc.cluster.local',
+          ],
+          issuerRef: {
+            kind: 'Issuer',
+            name: 'aws-load-balancer-selfsigned-issuer',
+          },
+          secretName: 'aws-load-balancer-webhook-tls',
+        },
+      });
+
+      new cdk8s.ApiObject(this, 'aws-load-balancer-selfsigned-issuer', {
+        apiVersion: 'cert-manager.io/v1alpha2',
+        kind: 'Issuer',
+        metadata: {
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: 'aws-load-balancer-selfsigned-issuer',
+          namespace: this.namespace,
+        },
+        spec: {
+          selfSigned: {},
+        },
+      });
+
+      new k8s.KubeValidatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-selfsigned-issuer-valid', {
+        metadata: {
+          annotations: {
+            'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
+          },
+          labels: {
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          name: 'aws-load-balancer-webhook',
+        },
+        webhooks: [
+          {
+            clientConfig: {
+              caBundle: 'Cg==',
+              service: {
+                name: 'aws-load-balancer-webhook-service',
+                namespace: this.namespace,
+                path: '/validate-elbv2-k8s-aws-v1beta1-targetgroupbinding',
+              },
+            },
+            failurePolicy: 'Fail',
+            name: 'vtargetgroupbinding.elbv2.k8s.aws',
+            rules: [{
+              apiGroups: ['elbv2.k8s.aws'],
+              apiVersions: ['v1beta1'],
+              operations: [
+                'CREATE',
+                'UPDATE',
+              ],
+              resources: ['targetgroupbindings'],
+            }],
+            sideEffects: 'None',
+          },
+        ],
+      });
+    } else {
+      new k8s.KubeDeployment(this, 'aws-load-balancer-controller-deployment', {
+        metadata: {
+          labels: {
+            'app.kubernetes.io/component': 'controller',
+            'app.kubernetes.io/name': this.serviceAccountName,
+            ...options.labels,
+          },
+          namespace: this.namespace,
+          name: this.deploymentName,
+        },
+        spec: {
+          replicas: options?.replicas ?? 1,
+          selector: {
+            matchLabels: {
+              'app.kubernetes.io/component': 'controller',
+              'app.kubernetes.io/name': this.serviceAccountName,
+              ...options.labels,
+            },
+          },
+          template: {
+            metadata: {
+              labels: {
+                'app.kubernetes.io/component': 'controller',
+                'app.kubernetes.io/name': this.serviceAccountName,
+                ...options.labels,
+              },
+            },
+            spec: {
+              containers: [{
+                name: 'controller',
+                image: options?.image ?? 'amazon/aws-alb-ingress-controller:v2.1.3',
+                args: this.argsFunc(options.args),
+                env: this.envFunc(options.env),
+                livenessProbe: {
+                  failureThreshold: 2,
+                  httpGet: {
+                    path: '/healthz',
+                    port: 61779,
+                    scheme: 'HTTP',
+                  },
+                  initialDelaySeconds: 30,
+                  timeoutSeconds: 10,
+                },
+                ports: [
+                  {
+                    containerPort: 9443,
+                    name: 'webhook-server',
+                    protocol: 'TCP',
+                  },
+                ],
+                resources: {
+                  limits: {
+                    cpu: '200m',
+                    memory: '500Mi',
+                  },
+                  requests: {
+                    cpu: '100m',
+                    memory: '200Mi',
+                  },
+                },
+                securityContext: {
+                  allowPrivilegeEscalation: false,
+                  readOnlyRootFilesystem: true,
+                  runAsNonRoot: true,
+                },
+              }],
+              securityContext: {
+                fsGroup: 1337,
+              },
+              serviceAccountName: `${this.serviceAccountName}`,
+              terminationGracePeriodSeconds: 10,
+            },
+          },
+        },
+      });
+
     }
 
     new cdk8s.ApiObject(this, 'aws-load-balancer-controller-crd', {
@@ -367,72 +678,6 @@ export class AwsLoadBalancerController extends Construct {
       },
     });
 
-    new k8s.KubeMutatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-webhook', {
-      metadata: {
-        annotations: {
-          'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
-        },
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-webhook',
-      },
-      webhooks: [
-        {
-          clientConfig: {
-            caBundle: 'Cg==',
-            service: {
-              name: 'aws-load-balancer-webhook-service',
-              namespace: this.namespace,
-              path: '/mutate-v1-pod',
-            },
-          },
-          failurePolicy: 'Fail',
-          name: 'mpod.elbv2.k8s.aws',
-          namespaceSelector: {
-            matchExpressions: [
-              {
-                key: 'elbv2.k8s.aws/pod-readiness-gate-inject',
-                operator: 'In',
-                values: ['enabled'],
-              },
-            ],
-          },
-          rules: [{
-            apiGroups: [''],
-            apiVersions: ['v1'],
-            operations: [
-              'CREATE',
-            ],
-            resources: ['pods'],
-          }],
-          sideEffects: 'None',
-        },
-        {
-          clientConfig: {
-            caBundle: 'Cg==',
-            service: {
-              name: 'aws-load-balancer-webhook-service',
-              namespace: this.namespace,
-              path: '/mutate-elbv2-k8s-aws-v1beta1-targetgroupbinding',
-            },
-          },
-          failurePolicy: 'Fail',
-          name: 'mtargetgroupbinding.elbv2.k8s.aws',
-          rules: [{
-            apiGroups: ['elbv2.k8s.aws'],
-            apiVersions: ['v1beta1'],
-            operations: [
-              'CREATE',
-              'UPDATE',
-            ],
-            resources: ['targetgroupbindings'],
-          }],
-          sideEffects: 'None',
-        },
-      ],
-    });
     if (options.createServiceAccount === true) {
       new k8s.KubeServiceAccount(this, 'aws-load-balancer-controller-sa', {
         metadata: {
@@ -628,173 +873,6 @@ export class AwsLoadBalancerController extends Construct {
           'app.kubernetes.io/name': this.serviceAccountName,
         },
       },
-    });
-
-    new k8s.KubeDeployment(this, 'aws-load-balancer-controller-deployment', {
-      metadata: {
-        labels: {
-          'app.kubernetes.io/component': 'controller',
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        namespace: this.namespace,
-        name: this.deploymentName,
-      },
-      spec: {
-        replicas: options?.replicas ?? 1,
-        selector: {
-          matchLabels: {
-            'app.kubernetes.io/component': 'controller',
-            'app.kubernetes.io/name': this.serviceAccountName,
-            ...options.labels,
-          },
-        },
-        template: {
-          metadata: {
-            labels: {
-              'app.kubernetes.io/component': 'controller',
-              'app.kubernetes.io/name': this.serviceAccountName,
-              ...options.labels,
-            },
-          },
-          spec: {
-            containers: [{
-              name: 'controller',
-              image: options?.image ?? 'amazon/aws-alb-ingress-controller:v2.1.3',
-              args: this.argsFunc(options.args),
-              env: this.envFunc(options.env),
-              livenessProbe: {
-                failureThreshold: 2,
-                httpGet: {
-                  path: '/healthz',
-                  port: 61779,
-                  scheme: 'HTTP',
-                },
-                initialDelaySeconds: 30,
-                timeoutSeconds: 10,
-              },
-              ports: [
-                {
-                  containerPort: 9443,
-                  name: 'webhook-server',
-                  protocol: 'TCP',
-                },
-              ],
-              resources: {
-                limits: {
-                  cpu: '200m',
-                  memory: '500Mi',
-                },
-                requests: {
-                  cpu: '100m',
-                  memory: '200Mi',
-                },
-              },
-              securityContext: {
-                allowPrivilegeEscalation: false,
-                readOnlyRootFilesystem: true,
-                runAsNonRoot: true,
-              },
-              volumeMounts: [
-                {
-                  mountPath: '/tmp/k8s-webhook-server/serving-certs',
-                  name: 'cert',
-                  readOnly: true,
-                },
-              ],
-            }],
-            securityContext: {
-              fsGroup: 1337,
-            },
-            serviceAccountName: `${this.serviceAccountName}`,
-            terminationGracePeriodSeconds: 10,
-            volumes: [{
-              name: 'cert',
-              secret: {
-                defaultMode: 420,
-                secretName: 'aws-load-balancer-webhook-tls',
-              },
-            }],
-          },
-        },
-      },
-    });
-
-    new cdk8s.ApiObject(this, 'aws-load-balancer-serving-cert', {
-      apiVersion: 'cert-manager.io/v1alpha2',
-      kind: 'Certificate',
-      metadata: {
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-serving-cert',
-        namespace: this.namespace,
-      },
-      spec: {
-        dnsNames: [
-          'aws-load-balancer-webhook-service.kube-system.svc',
-          'aws-load-balancer-webhook-service.kube-system.svc.cluster.local',
-        ],
-        issuerRef: {
-          kind: 'Issuer',
-          name: 'aws-load-balancer-selfsigned-issuer',
-        },
-        secretName: 'aws-load-balancer-webhook-tls',
-      },
-    });
-
-    new cdk8s.ApiObject(this, 'aws-load-balancer-selfsigned-issuer', {
-      apiVersion: 'cert-manager.io/v1alpha2',
-      kind: 'Issuer',
-      metadata: {
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-selfsigned-issuer',
-        namespace: this.namespace,
-      },
-      spec: {
-        selfSigned: {},
-      },
-    });
-
-    new k8s.KubeValidatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-selfsigned-issuer-valid', {
-      metadata: {
-        annotations: {
-          'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
-        },
-        labels: {
-          'app.kubernetes.io/name': this.serviceAccountName,
-          ...options.labels,
-        },
-        name: 'aws-load-balancer-webhook',
-      },
-      webhooks: [
-        {
-          clientConfig: {
-            caBundle: 'Cg==',
-            service: {
-              name: 'aws-load-balancer-webhook-service',
-              namespace: this.namespace,
-              path: '/validate-elbv2-k8s-aws-v1beta1-targetgroupbinding',
-            },
-          },
-          failurePolicy: 'Fail',
-          name: 'vtargetgroupbinding.elbv2.k8s.aws',
-          rules: [{
-            apiGroups: ['elbv2.k8s.aws'],
-            apiVersions: ['v1beta1'],
-            operations: [
-              'CREATE',
-              'UPDATE',
-            ],
-            resources: ['targetgroupbindings'],
-          }],
-          sideEffects: 'None',
-        },
-      ],
     });
 
   }
