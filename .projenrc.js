@@ -22,7 +22,7 @@ const project = new ConstructLibraryCdk8s({
     `@aws-cdk/aws-iam@^${CDK_VERSION}`,
     `@aws-cdk/core@^${CDK_VERSION}`,
   ],
-  releaseEveryCommit: false,
+  releaseEveryCommit: true,
   devDeps: [
     'constructs@^3.3.65',
     '@types/js-yaml@^3.12.5',
