@@ -47,4 +47,5 @@ const project = new ConstructLibraryCdk8s({
 const common_exclude = ['cdk.out', 'package.json', 'yarn-error.log', 'coverage', '.DS_Store', '.idea', '.vs_code'];
 project.gitignore.exclude(...common_exclude);
 
+project.npmignore.include('crds.yaml');
 project.synth();

@@ -117,14 +117,10 @@ export class AwsLoadBalancerController extends Construct {
     this.certManager = options?.certManager ?? true;
 
     if (this.certManager === true) {
-      new cdk8s.Include(this, 'certificate-manager', {
-        url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
+      new cdk8s.Include(this, 'alb-crds', {
+        url: path.join('../crds.yaml'),
       });
     }
-
-    new cdk8s.Include(this, 'alb-crds', {
-      url: path.join(__dirname, 'imports', 'crds.yaml'),
-    });
 
     new k8s.KubeMutatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-webhook', {
       metadata: {
