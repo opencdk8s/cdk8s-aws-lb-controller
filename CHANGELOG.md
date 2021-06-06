@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.1.2...v0.1.3) (2021-06-06)
+
+
+### Bug Fixes
+
+* add __dirname to import ([817e991](https://github.com/opencdk8s/cdk8s-aws-lb-controller/commit/817e991157c66519590dca4b9939f5ee3672b349))
+
 ### [0.1.2](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.1.1...v0.1.2) (2021-06-06)
 
 
