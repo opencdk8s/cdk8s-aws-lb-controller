@@ -7,7 +7,7 @@
 
 Synths an install manifest for [aws-load-balancer-controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller), based off of [this repo](https://github.com/guan840912/cdk8s-aws-load-balancer-controller)
 
-## Controller version : `v2.1.3`
+## Controller version : `v2.2.0`
 
 ## Overview
 
