@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.0.6...v0.1.0) (2021-06-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* controller v2.1.3 no longer supported, please use older version of package
+
+### Features
+
+* controller version 2.2.0 ([#6](https://github.com/opencdk8s/cdk8s-aws-lb-controller/issues/6)) ([440af57](https://github.com/opencdk8s/cdk8s-aws-lb-controller/commit/440af577599ada27cd0f3defac91718e9bd1e292))
+
 ### [0.0.6](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.0.5...v0.0.6) (2021-06-05)
 
 ### [0.0.5](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.0.4...v0.0.5) (2021-06-05)
