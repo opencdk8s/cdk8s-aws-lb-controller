@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.4](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.1.3...v0.1.4) (2021-06-06)
+
+
+### Bug Fixes
+
+* cert manager crds include ([06cb48a](https://github.com/opencdk8s/cdk8s-aws-lb-controller/commit/06cb48a341c5e2a8a2d4028c4a895b68201fce61))
+
 ### [0.1.3](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.1.2...v0.1.3) (2021-06-06)
 
 
