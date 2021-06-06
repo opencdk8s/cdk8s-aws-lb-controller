@@ -118,7 +118,7 @@ export class AwsLoadBalancerController extends Construct {
 
     if (this.certManager === true) {
       new cdk8s.Include(this, 'alb-crds', {
-        url: path.join('../crds.yaml'),
+        url: path.join(__dirname, '../crds.yaml'),
       });
     }
 
