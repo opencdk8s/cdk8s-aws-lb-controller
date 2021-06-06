@@ -1,5 +1,14 @@
-describe('my suite', () => {
-  test.only('my only true test', () => {
-    expect(1 + 1).toEqual(2);
+import { Chart, Testing } from 'cdk8s';
+import { AwsLoadBalancerController } from '../src/index';
+
+test('lb-controller', () => {
+  const app = Testing.app();
+  const chart = new Chart(app, 'test');
+  new AwsLoadBalancerController(chart, 'es', {
+    clusterName: 'cluster',
+    certManager: false,
+    serviceAccountName: 'aws-load-balancer-controller',
+    createServiceAccount: false,
   });
+  expect(Testing.synth(chart)).toMatchSnapshot();
 });

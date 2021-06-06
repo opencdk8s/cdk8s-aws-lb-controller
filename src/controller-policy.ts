@@ -7,12 +7,14 @@ export enum VersionsLists {
 }
 
 const awsLoadBalancerControllerPolicyV2 = [
+
   {
     Effect: 'Allow',
     Action: [
       'iam:CreateServiceLinkedRole',
       'ec2:DescribeAccountAttributes',
       'ec2:DescribeAddresses',
+      'ec2:DescribeAvailabilityZones',
       'ec2:DescribeInternetGateways',
       'ec2:DescribeVpcs',
       'ec2:DescribeSubnets',
@@ -20,6 +22,8 @@ const awsLoadBalancerControllerPolicyV2 = [
       'ec2:DescribeInstances',
       'ec2:DescribeNetworkInterfaces',
       'ec2:DescribeTags',
+      'ec2:GetCoipPoolUsage',
+      'ec2:DescribeCoipPools',
       'elasticloadbalancing:DescribeLoadBalancers',
       'elasticloadbalancing:DescribeLoadBalancerAttributes',
       'elasticloadbalancing:DescribeListeners',
@@ -158,6 +162,19 @@ const awsLoadBalancerControllerPolicyV2 = [
   {
     Effect: 'Allow',
     Action: [
+      'elasticloadbalancing:AddTags',
+      'elasticloadbalancing:RemoveTags',
+    ],
+    Resource: [
+      'arn:aws:elasticloadbalancing:*:*:listener/net/*/*/*',
+      'arn:aws:elasticloadbalancing:*:*:listener/app/*/*/*',
+      'arn:aws:elasticloadbalancing:*:*:listener-rule/net/*/*/*',
+      'arn:aws:elasticloadbalancing:*:*:listener-rule/app/*/*/*',
+    ],
+  },
+  {
+    Effect: 'Allow',
+    Action: [
       'elasticloadbalancing:ModifyLoadBalancerAttributes',
       'elasticloadbalancing:SetIpAddressType',
       'elasticloadbalancing:SetSecurityGroups',
@@ -192,7 +209,10 @@ const awsLoadBalancerControllerPolicyV2 = [
       'elasticloadbalancing:ModifyRule',
     ],
     Resource: '*',
+
+
   },
+
 ];
 
 /**
