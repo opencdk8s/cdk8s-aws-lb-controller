@@ -6,7 +6,7 @@ test('lb-controller', () => {
   const chart = new Chart(app, 'test');
   new AwsLoadBalancerController(chart, 'es', {
     clusterName: 'cluster',
-    certManager: false,
+    certManager: true,
     serviceAccountName: 'aws-load-balancer-controller',
     createServiceAccount: false,
   });

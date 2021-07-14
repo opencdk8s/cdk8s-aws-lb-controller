@@ -118,7 +118,7 @@ export class AwsLoadBalancerController extends Construct {
 
     if (this.certManager === true) {
       new cdk8s.Include(this, 'certificate-manager', {
-        url: 'https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml',
+        url: path.join(__dirname, '../cert-manager-v1.1.1.crds.yaml'),
       });
     }
 
