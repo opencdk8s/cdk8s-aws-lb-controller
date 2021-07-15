@@ -72,6 +72,10 @@ export interface AwsLoadBalancerControllerOptions {
    * @default - 1
    */
   readonly replicas?: number;
+  /**
+   * Add an annotation so that ArgoCD ignores mutatingwebhook
+   */
+  readonly argoCertIgnore?: boolean;
 }
 /**
  * Generate aws-load-balancer-controller config yaml.
@@ -126,11 +130,12 @@ export class AwsLoadBalancerController extends Construct {
       url: path.join(__dirname, '../crds.yaml'),
     });
 
+    const webhookAnnotations: {[key: string]: string} = options.argoCertIgnore ? { 'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert', 'argocd.argoproj.io/compare-options': 'IgnoreExtraneous' } : { 'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert' };
+
+
     new k8s.KubeMutatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-webhook', {
       metadata: {
-        annotations: {
-          'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
-        },
+        annotations: webhookAnnotations,
         labels: {
           'app.kubernetes.io/name': this.serviceAccountName,
           ...options.labels,
@@ -599,11 +604,10 @@ export class AwsLoadBalancerController extends Construct {
       },
     });
 
+
     new k8s.KubeValidatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-selfsigned-issuer-valid', {
       metadata: {
-        annotations: {
-          'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert',
-        },
+        annotations: webhookAnnotations,
         labels: {
           'app.kubernetes.io/name': this.serviceAccountName,
           ...options.labels,

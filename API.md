@@ -47,6 +47,7 @@ new AwsLoadBalancerController(scope: Construct, id: string, options: AwsLoadBala
 * **options** (<code>[AwsLoadBalancerControllerOptions](#opencdk8s-cdk8s-aws-lb-controller-awsloadbalancercontrolleroptions)</code>)  *No description*
   * **clusterName** (<code>string</code>)  Kubernetes Cluster Name for aws-load-balancer-controller. 
   * **serviceAccountName** (<code>string</code>)  Service Account Name for aws-load-balancer-controller. 
+  * **argoCertIgnore** (<code>boolean</code>)  Add an annotation so that ArgoCD ignores mutatingwebhook. __*Optional*__
   * **args** (<code>Array<string></code>)  Another Args for aws-load-balancer-controller. __*Default*__: None
   * **certManager** (<code>boolean</code>)  Install cert-manager. __*Default*__: true
   * **createServiceAccount** (<code>boolean</code>)  service account for aws-load-balancer-controller. __*Default*__: true
@@ -118,6 +119,7 @@ Name | Type | Description
 -----|------|-------------
 **clusterName**🔹 | <code>string</code> | Kubernetes Cluster Name for aws-load-balancer-controller.
 **serviceAccountName**🔹 | <code>string</code> | Service Account Name for aws-load-balancer-controller.
+**argoCertIgnore**?🔹 | <code>boolean</code> | Add an annotation so that ArgoCD ignores mutatingwebhook.<br/>__*Optional*__
 **args**?🔹 | <code>Array<string></code> | Another Args for aws-load-balancer-controller.<br/>__*Default*__: None
 **certManager**?🔹 | <code>boolean</code> | Install cert-manager.<br/>__*Default*__: true
 **createServiceAccount**?🔹 | <code>boolean</code> | service account for aws-load-balancer-controller.<br/>__*Default*__: true

@@ -21940,6 +21940,7 @@ Array [
     "kind": "MutatingWebhookConfiguration",
     "metadata": Object {
       "annotations": Object {
+        "argocd.argoproj.io/compare-options": "IgnoreExtraneous",
         "cert-manager.io/inject-ca-from": "kube-system/aws-load-balancer-serving-cert",
       },
       "labels": Object {
@@ -22501,6 +22502,7 @@ Array [
     "kind": "ValidatingWebhookConfiguration",
     "metadata": Object {
       "annotations": Object {
+        "argocd.argoproj.io/compare-options": "IgnoreExtraneous",
         "cert-manager.io/inject-ca-from": "kube-system/aws-load-balancer-serving-cert",
       },
       "labels": Object {

@@ -9,6 +9,8 @@ test('lb-controller', () => {
     certManager: true,
     serviceAccountName: 'aws-load-balancer-controller',
     createServiceAccount: false,
+    argoCertIgnore: true,
+    
   });
   expect(Testing.synth(chart)).toMatchSnapshot();
 });
