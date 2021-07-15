@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.2.1...v0.2.2) (2021-07-15)
+
+
+### Bug Fixes
+
+* remove app instance annotations for argocd ([18c258d](https://github.com/opencdk8s/cdk8s-aws-lb-controller/commit/18c258d00314a3b0e824afc47e589cb33b21b0f8))
+
 ### [0.2.1](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.2.0...v0.2.1) (2021-07-15)
 
 
