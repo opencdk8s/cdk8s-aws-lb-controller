@@ -10,7 +10,6 @@ test('lb-controller', () => {
     serviceAccountName: 'aws-load-balancer-controller',
     createServiceAccount: false,
     argoCertIgnore: true,
-    
   });
   expect(Testing.synth(chart)).toMatchSnapshot();
 });
