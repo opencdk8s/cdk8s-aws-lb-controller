@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.2.2...v0.2.3) (2021-07-15)
+
+
+### Features
+
+* ignore cert option for argocd ([24c4478](https://github.com/opencdk8s/cdk8s-aws-lb-controller/commit/24c447881c8b70faeabe8d92bd6a18d674a4b879))
+
 ### [0.2.2](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.2.1...v0.2.2) (2021-07-15)
 
 
