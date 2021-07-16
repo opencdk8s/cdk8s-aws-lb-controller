@@ -21941,6 +21941,7 @@ Array [
     "metadata": Object {
       "annotations": Object {
         "argocd.argoproj.io/compare-options": "IgnoreExtraneous",
+        "argocd.argoproj.io/hook": "Skip",
         "cert-manager.io/inject-ca-from": "kube-system/aws-load-balancer-serving-cert",
       },
       "labels": Object {
@@ -22503,6 +22504,7 @@ Array [
     "metadata": Object {
       "annotations": Object {
         "argocd.argoproj.io/compare-options": "IgnoreExtraneous",
+        "argocd.argoproj.io/hook": "Skip",
         "cert-manager.io/inject-ca-from": "kube-system/aws-load-balancer-serving-cert",
       },
       "labels": Object {

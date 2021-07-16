@@ -130,7 +130,7 @@ export class AwsLoadBalancerController extends Construct {
       url: path.join(__dirname, '../crds.yaml'),
     });
 
-    const webhookAnnotations: {[key: string]: string} = options.argoCertIgnore ? { 'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert', 'argocd.argoproj.io/compare-options': 'IgnoreExtraneous' } : { 'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert' };
+    const webhookAnnotations: {[key: string]: string} = options.argoCertIgnore ? { 'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert', 'argocd.argoproj.io/compare-options': 'IgnoreExtraneous', 'argocd.argoproj.io/hook': 'Skip' } : { 'cert-manager.io/inject-ca-from': 'kube-system/aws-load-balancer-serving-cert' };
 
 
     new k8s.KubeMutatingWebhookConfigurationV1Beta1(this, 'aws-load-balancer-webhook', {
