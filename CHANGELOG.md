@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.2.3...v0.2.4) (2021-07-16)
+
+
+### Features
+
+* adds an optional skip hook annotation ([db568ec](https://github.com/opencdk8s/cdk8s-aws-lb-controller/commit/db568ecf098fe9f61eaf31f7198859a59cce9e4c))
+
 ### [0.2.3](https://github.com/opencdk8s/cdk8s-aws-lb-controller/compare/v0.2.2...v0.2.3) (2021-07-15)
 
 
