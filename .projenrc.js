@@ -1,11 +1,16 @@
 const { ConstructLibraryCdk8s } = require('projen');
 
-const CDK_VERSION = '1.92.0';
+const CDK_VERSION = '1.113.0';
 
 const project = new ConstructLibraryCdk8s({
   author: 'Hunter Thompson',
   authorAddress: 'aatman@auroville.org.in',
-  cdk8sVersion: '1.0.0-beta.10',
+  cdk8sVersion: '1.0.0-beta.11',
+  cdk8sPlusVersion: '1.0.0-beta.15',
+  constructsVersion: '3.3.134',
+  constructsVersionPinning: true,
+  cdk8sPlusVersionPinning: true,
+  cdk8sVersionPinning: true,
   defaultReleaseBranch: 'development',
   stability: 'experimental',
   jsiiFqn: 'projen.ConstructLibraryCdk8s',
@@ -18,26 +23,22 @@ const project = new ConstructLibraryCdk8s({
     module: 'cdk8s_aws_lb_controller',
   },
   peerDeps: [
-    'constructs@^3.3.65',
-    `@aws-cdk/aws-iam@^${CDK_VERSION}`,
-    `@aws-cdk/core@^${CDK_VERSION}`,
+    `@aws-cdk/aws-iam@${CDK_VERSION}`,
+    `@aws-cdk/core@${CDK_VERSION}`,
   ],
   releaseEveryCommit: true,
   devDeps: [
-    'constructs@^3.3.65',
     '@types/js-yaml@^3.12.5',
     'js-yaml@^3.14.0',
-    `@aws-cdk/aws-iam@^${CDK_VERSION}`,
-    `@aws-cdk/core@^${CDK_VERSION}`,
+    `@aws-cdk/aws-iam@${CDK_VERSION}`,
+    `@aws-cdk/core@${CDK_VERSION}`,
   ],
   bundledDeps: [
     '@types/js-yaml@^3.12.5',
     'js-yaml@^3.14.0',
   ],
   dependabot: false,
-  gitignore: ['package.json', 'test/'],
   pullRequestTemplate: false,
-  releaseBranches: ['development'],
   codeCov: true,
   clobber: false,
   readme: true,
