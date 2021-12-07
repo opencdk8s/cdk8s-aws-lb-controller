@@ -3,7 +3,9 @@ import { AwsLoadBalancerController } from '../src/index';
 
 test('lb-controller', () => {
   const app = Testing.app();
+
   const chart = new Chart(app, 'test');
+
   new AwsLoadBalancerController(chart, 'es', {
     clusterName: 'cluster',
     certManager: true,
