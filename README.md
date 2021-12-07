@@ -125,7 +125,7 @@ spec:
                                 fields can be set.
                               properties:
                                 cidr:
-                                  description: CIDR is the network CIDR. Both IPV4 or IPV6 CIDR are accepted.
+                                  description: CIDR i the network CIDR. Both IPV4 or IPV6 CIDR are accepted.
                                   type: string
                               required:
                                 - cidr
