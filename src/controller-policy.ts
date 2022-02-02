@@ -1,4 +1,4 @@
-import * as iam from '@aws-cdk/aws-iam';
+import * as iam from 'aws-cdk-lib/aws-iam';
 export enum VersionsLists {
   /*
   * AWS Load Balancer Controller Policy Version 2 for version after version 2.0.0 (include 2.0.0).
