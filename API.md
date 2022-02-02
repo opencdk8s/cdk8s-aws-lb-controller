@@ -30,7 +30,7 @@ Generate aws-load-balancer-controller config yaml.
 
 see https://github.com/kubernetes-sigs/aws-aws-load-balancer-controller/blob/master/docs/install/v2_0_0_full.yaml
 
-__Implements__: [IConstruct](#constructs-iconstruct)
+__Implements__: [IConstruct](#constructs-iconstruct), [IDependable](#constructs-idependable)
 __Extends__: [Construct](#constructs-construct)
 
 ### Initializer
